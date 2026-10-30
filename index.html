@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Аудиокнига: Загадки Древних Цивилизаций</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        serif: ['Cinzel', 'serif'],
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        amber: {
+                            850: '#854d0e',
+                            950: '#451a03',
+                        },
+                        sand: {
+                            50: '#fdfbf7',
+                            100: '#f7f2e7',
+                            200: '#ede2ce',
+                            800: '#3d3122',
+                            900: '#261e14',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.05); }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(180, 140, 80, 0.3); border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(180, 140, 80, 0.6); }
+        
+        .pulse-wave {
+            animation: pulse 1.5s infinite ease-in-out;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scaleY(0.3); opacity: 0.5; }
+            50% { transform: scaleY(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="bg-sand-900 text-sand-100 font-sans min-h-screen flex flex-col antialiased selection:bg-amber-600 selection:text-white">
+
+    <header class="border-b border-amber-900/40 bg-sand-900/90 backdrop-blur-md sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-amber-600 to-amber-400 flex items-center justify-center text-sand-900 font-serif font-bold text-xl shadow-lg shadow-amber-600/20">
+                    🏛️
+                </div>
+                <div>
+                    <h1 class="font-serif text-lg sm:text-xl font-bold tracking-wide text-amber-200">ХРОНИКИ ВЕКОВ</h1>
+                    <p class="text-xs text-amber-500/80 tracking-wider uppercase">Иллюстрированная аудиокнига</p>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-4">
+                <button id="openGenerateModalBtn" class="flex items-center space-x-2 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white text-xs sm:text-sm font-medium px-4 py-2.5 rounded-xl transition duration-200 shadow-md shadow-amber-950/50 border border-amber-500/30">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span class="hidden sm:inline">Создать главу</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 p-4 sm:p-6 lg:p-8">
+        
+        <!-- Sidebar - Chapter Selection -->
+        <aside class="lg:col-span-4 flex flex-col space-y-4">
+            <div class="bg-sand-800/60 border border-amber-900/30 rounded-2xl p-4 sm:p-5 backdrop-blur-sm">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="font-serif font-bold text-amber-200 text-lg flex items-center gap-2">
+                        <i class="fa-solid fa-book-bookmark text-amber-500 text-sm"></i>
+                        Содержание
+                    </h2>
+                    <span id="chapterCount" class="text-xs px-2.5 py-1 rounded-full bg-amber-950/80 text-amber-400 border border-amber-800/40">5 глав</span>
+                </div>
+                
+                <!-- Chapter List Container -->
+                <div id="chapterList" class="space-y-3 max-h-[500px] lg:max-h-[calc(100vh-280px)] overflow-y-auto pr-1 custom-scrollbar">
+                    <!-- Chapters populated by JS -->
+                </div>
+            </div>
+
+            <!-- Voice & Audio Settings Widget -->
+            <div class="bg-sand-800/40 border border-amber-900/20 rounded-2xl p-4 backdrop-blur-sm">
+                <h3 class="text-xs font-semibold text-amber-400 uppercase tracking-wider mb-3">Настройки голоса и озвучки</h3>
+                <div class="grid grid-cols-2 gap-3 text-xs">
+                    <div>
+                        <label class="block text-sand-200/70 mb-1">Голос диктора</label>
+                        <select id="voiceSelect" class="w-full bg-sand-900/90 border border-amber-900/40 rounded-lg px-2.5 py-1.5 text-sand-100 focus:outline-none focus:border-amber-500">
+                            <option value="Kore">Коре (Внушительный)</option>
+                            <option value="Zephyr" selected>Зефир (Светлый)</option>
+                            <option value="Puck">Пак (Энергичный)</option>
+                            <option value="Fenrir">Фенрир (Глубокий)</option>
+                            <option value="Aoede">Аэда (Мягкий)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sand-200/70 mb-1">Стиль подачи</label>
+                        <select id="styleSelect" class="w-full bg-sand-900/90 border border-amber-900/40 rounded-lg px-2.5 py-1.5 text-sand-100 focus:outline-none focus:border-amber-500">
+                            <option value="epic">Эпический сказ</option>
+                            <option value="calm" selected>Размеренное чтение</option>
+                            <option value="mysterious">Загадочный шепот</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Player Display Area -->
+        <section class="lg:col-span-8 flex flex-col space-y-6">
+            
+            <!-- Book Artwork & Visualizer Container -->
+            <div class="relative bg-sand-800/80 border border-amber-900/40 rounded-3xl overflow-hidden shadow-2xl group flex flex-col min-h-[380px]">
+                
+                <!-- Illustration Image -->
+                <div class="relative w-full h-72 sm:h-96 bg-sand-950 overflow-hidden flex items-center justify-center">
+                    <img id="chapterImage" src="" alt="Иллюстрация главы" class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 opacity-0 transition-opacity">
+                    
+                    <!-- Overlay Gradients -->
+                    <div class="absolute inset-0 bg-gradient-to-t from-sand-900 via-sand-900/20 to-transparent"></div>
+                    
+                    <!-- Loading Spinner for Image -->
+                    <div id="imageLoader" class="absolute inset-0 flex flex-col items-center justify-center bg-sand-950/80 backdrop-blur-sm">
+                        <div class="w-10 h-10 border-4 border-amber-500/30 border-t-amber-500 rounded-full animate-spin mb-3"></div>
+                        <p class="text-xs text-amber-300 font-medium">Создание древней иллюстрации...</p>
+                    </div>
+
+                    <!-- Audio Waveform Visualizer overlay -->
+                    <div id="audioVisualizer" class="absolute bottom-4 right-6 flex items-end space-x-1 h-8 opacity-0 transition-opacity">
+                        <span class="w-1 bg-amber-400 rounded-full h-3 pulse-wave" style="animation-delay: 0.1s"></span>
+                        <span class="w-1 bg-amber-400 rounded-full h-6 pulse-wave" style="animation-delay: 0.3s"></span>
+                        <span class="w-1 bg-amber-400 rounded-full h-8 pulse-wave" style="animation-delay: 0.2s"></span>
+                        <span class="w-1 bg-amber-400 rounded-full h-4 pulse-wave" style="animation-delay: 0.4s"></span>
+                        <span class="w-1 bg-amber-400 rounded-full h-7 pulse-wave" style="animation-delay: 0.15s"></span>
+                    </div>
+
+                    <button id="regenerateImageBtn" title="Перегенерировать иллюстрацию" class="absolute top-4 right-4 bg-sand-900/80 hover:bg-amber-600 text-sand-200 hover:text-white p-2.5 rounded-xl backdrop-blur-md border border-amber-800/40 transition duration-200">
+                        <i class="fa-solid fa-image"></i>
+                    </button>
+                </div>
+
+                <!-- Player Controls Section -->
+                <div class="p-6 sm:p-8 bg-gradient-to-b from-sand-900/90 to-sand-900 flex-1 flex flex-col justify-between -mt-12 relative z-10">
+                    <div>
+                        <div class="flex items-center space-x-2 text-xs font-semibold text-amber-500 uppercase tracking-widest mb-1">
+                            <span id="chapterNumber">Глава I</span>
+                            <span>•</span>
+                            <span id="chapterEra">3000 г. до н.э.</span>
+                        </div>
+                        <h2 id="chapterTitle" class="font-serif text-2xl sm:text-3xl font-bold text-amber-100 mb-2">Загрузка главы...</h2>
+                        <p id="chapterSubtitle" class="text-xs sm:text-sm text-sand-200/70 line-clamp-2">Описание древней цивилизации</p>
+                    </div>
+
+                    <!-- Progress Bar & Time -->
+                    <div class="mt-6 space-y-2">
+                        <div id="progressBarContainer" class="w-full bg-sand-950/80 h-2 rounded-full overflow-hidden cursor-pointer border border-amber-900/30 relative">
+                            <div id="progressBar" class="bg-gradient-to-r from-amber-600 to-amber-400 h-full w-0 transition-all duration-100"></div>
+                        </div>
+                        <div class="flex justify-between text-xs font-mono text-sand-200/50">
+                            <span id="currentTime">00:00</span>
+                            <span id="durationTime">00:00</span>
+                        </div>
+                    </div>
+
+                    <!-- Buttons Row -->
+                    <div class="flex items-center justify-between mt-4">
+                        <div class="flex items-center space-x-2">
+                            <button id="prevBtn" class="p-3 text-sand-200/70 hover:text-amber-300 transition"><i class="fa-solid fa-backward-step text-lg"></i></button>
+                            <button id="playBtn" class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-amber-600 to-amber-400 hover:from-amber-500 hover:to-amber-300 text-sand-950 font-bold flex items-center justify-center shadow-lg shadow-amber-600/30 transition transform hover:scale-105 active:scale-95">
+                                <i id="playIcon" class="fa-solid fa-play text-xl ml-0.5"></i>
+                            </button>
+                            <button id="nextBtn" class="p-3 text-sand-200/70 hover:text-amber-300 transition"><i class="fa-solid fa-forward-step text-lg"></i></button>
+                        </div>
+
+                        <div class="flex items-center space-x-3">
+                            <button id="generateAudioBtn" class="flex items-center space-x-2 px-3 py-2 rounded-xl bg-amber-950/60 hover:bg-amber-900/80 text-amber-300 text-xs border border-amber-800/40 transition">
+                                <i class="fa-solid fa-waveform"></i>
+                                <span class="hidden sm:inline">Переозвучить</span>
+                            </button>
+                            <button id="speedBtn" class="px-2.5 py-1.5 rounded-lg bg-sand-800 text-amber-300 text-xs font-mono border border-amber-900/40 hover:bg-amber-900/40 transition">
+                                1.0x
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chapter Transcript & Story Text -->
+            <div class="bg-sand-800/50 border border-amber-900/30 rounded-3xl p-6 sm:p-8 backdrop-blur-sm">
+                <div class="flex items-center justify-between mb-4 border-b border-amber-900/30 pb-3">
+                    <h3 class="font-serif text-lg font-bold text-amber-200 flex items-center gap-2">
+                        <i class="fa-solid fa-scroll text-amber-500"></i>
+                        Текст Хроники
+                    </h3>
+                    <button id="ttsReadCurrentTextBtn" class="text-xs text-amber-400 hover:text-amber-200 flex items-center gap-1">
+                        <i class="fa-solid fa-volume-high"></i> Читать выделенное
+                    </button>
+                </div>
+                <div id="chapterText" class="prose prose-invert max-w-none text-sand-100/90 leading-relaxed text-base sm:text-lg font-serif space-y-4 max-h-96 overflow-y-auto pr-2 custom-scrollbar">
+                    <!-- Text content inserted dynamically -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="generateModal" class="fixed inset-0 bg-sand-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-sand-900 border border-amber-800/50 rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl relative">
+            <button id="closeGenerateModalBtn" class="absolute top-5 right-5 text-sand-200/50 hover:text-sand-100 text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            
+            <div class="flex items-center space-x-3 mb-6">
+                <div class="w-10 h-10 rounded-xl bg-amber-600/20 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                    <i class="fa-solid fa-compass-drafting text-lg"></i>
+                </div>
+                <div>
+                    <h3 class="font-serif text-xl font-bold text-amber-100">Создать новую главу</h3>
+                    <p class="text-xs text-amber-500/80">ИИ сгенерирует историю, иллюстрацию и аудио</p>
+                </div>
+            </div>
+
+            <form id="generateForm" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-amber-300 uppercase tracking-wider mb-1">Название Цивилизации или Эпохи</label>
+                    <input type="text" id="customTopicInput" placeholder="Например: Ацтеки, Вавилон, Карфаген, Древняя Япония..." required class="w-full bg-sand-950 border border-amber-900/60 rounded-xl px-4 py-3 text-sand-100 placeholder-sand-200/30 focus:outline-none focus:border-amber-500 text-sm">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-amber-300 uppercase tracking-wider mb-1">Фокус рассказа</label>
+                    <select id="customFocusSelect" class="w-full bg-sand-950 border border-amber-900/60 rounded-xl px-4 py-3 text-sand-100 focus:outline-none focus:border-amber-500 text-sm">
+                        <option value="mysteries">Загадки и архитектурные чудеса</option>
+                        <option value="daily_life">Поседневная жизнь и обычаи</option>
+                        <option value="myths">Мифология и верования</option>
+                        <option value="fall">Расцвет и падение империи</option>
+                    </select>
+                </div>
+
+                <div class="pt-4 flex items-center justify-end space-x-3">
+                    <button type="button" id="cancelGenerateBtn" class="px-5 py-2.5 rounded-xl text-sand-200/70 hover:text-sand-100 text-sm font-medium">Отмена</button>
+                    <button type="submit" id="submitGenerateBtn" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white text-sm font-semibold shadow-lg shadow-amber-950">
+                        <i class="fa-solid fa-sparkles mr-1.5"></i> Создать главу
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const initialChapters = [
+            {
+                id: 'egypt',
+                era: '3100 – 30 г. до н.э.',
+                title: 'Древний Египет: Владыки Нила',
+                subtitle: 'Пирамиды, тайны фаараонов и бессмертие вдоль великой реки.',
+                text: `Тысячелетия назад вдоль плодородных берегов Нила расцвела одна из самых великих цивилизаций в истории человечества. Древний Египет был страной глубокой веры, где фараоны считались земными воплощениями бога Гора. Великие пирамиды Гизы, построенные с невероятной геометрической точностью, до сих пор хранят свои секреты. Египтяне верили, что смерть — это лишь начало пути в вечность. Их иероглифы, усыпальницы и величие монументов продолжают вдохновлять исследователей со всего мира.`,
+                imagePrompt: 'A breathtaking cinematic wide shot of Great Pyramids of Giza at golden sunset, ancient Egypt, majestic Nile river with felucca boats, glowing warm light, highly detailed illustration style',
+                imageUrl: null,
+                audioBlobUrl: null
+            },
+            {
+                id: 'mesopotamia',
+                era: '4000 – 539 г. до н.э.',
+                title: 'Месопотамия: Колыбель Цивилизации',
+                subtitle: 'Зиккураты Шумера и легендарные сады Вавилона.',
+                text: `Между священными реками Тигр и Евфрат зародились первые города Земли. Шумеры подарили миру письменность — клинопись, а также wheel, закон и астрономию. В Вавилоне царь Хаммурапи создал один из первых сводов законов, высеченный на базальтовом столбе. Великие ступенчатые зиккураты поднимались к самым небесам, служа мостом между людьми и богами. Здесь создавались первые эпосы и первые календари.`,
+                imagePrompt: 'Ancient Mesopotamian city with magnificent Ziggurat, Ishtar Gate, Mesopotamian architecture, Tigris river, lush hanging gardens of Babylon in background, golden hour lighting, epic historical art style',
+                imageUrl: null,
+                audioBlobUrl: null
+            },
+            {
+                id: 'indus',
+                era: '3300 – 1300 г. до н.э.',
+                title: 'Индская Цивилизация: Тайна Хараппы',
+                subtitle: 'Загадочные города с водопроводом и нерасшифрованной письменностью.',
+                text: `В долине реки İнд процветали Мохенджо-Даро и Хараппа — города, опередившие свое время. У них была развитая городская планировка, идеальная дренажная система и завидная организация общества без следов дворцов или войн. Их нерасшифрованная письменность и таинственное исчезновение до сих пор остаются одной из самых интригующих загадок древней истории.`,
+                imagePrompt: 'Ancient Harappan Mohenjo-daro city, brick architecture, peaceful urban street scene, ancient Indus valley civilization, detailed historical realism',
+                imageUrl: null,
+                audioBlobUrl: null
+            },
+            {
+                id: 'maya',
+                era: '2000 г. до н.э. – 1500 г. н.э.',
+                title: 'Майя: Астрономы Джунглей',
+                subtitle: 'Календари, ступенчатые пирамиды и математика ступеней.',
+                text: `В густых тропических лесах Мезоамерики майя воздвигли каменные города-государства. Без металлических инструментов они создали точнейшие астрономические календари и открыли понятие нуля в математике. Пирамиды майя, такие как Чичен-Ица и Тикаль, выстроены так, чтобы служить гигантскими обсерваториями для слежения за движениями Солнца и Венеры.`,
+                imagePrompt: 'Ancient Maya temple Chichen Itza pyramid emerging from lush dense jungle, mist, starry night with milky way galaxy in sky, mystical atmosphere, vibrant historical digital art',
+                imageUrl: null,
+                audioBlobUrl: null
+            },
+            {
+                id: 'greece',
+                era: '800 – 146 г. до н.э.',
+                title: 'Древняя Греция: Заря Демократии',
+                subtitle: 'Философы, Парфенон и истоки современной культуры.',
+                text: `На скалистых берегах Эгейского моря возникла цивилизация, заложившая основы современной науки, философии и политики. В Афинах зародилась демократия, Сократ и Платон искали истину, а архитекторы возвели величавый Парфенон. Греческие мифы и Олимпийские игры до сих пор живут в культуре всего мира.`,
+                imagePrompt: 'Ancient Greece Parthenon on Acropolis in Athens, marble columns, philosophers discussing under blue sky with golden sunlight, dramatic epic historical digital painting',
+                imageUrl: null,
+                audioBlobUrl: null
+            }
+        ];
+
+        let chapters = [...initialChapters];
+        let currentChapterIndex = 0;
+        let isPlaying = false;
+        let audioElement = new Audio();
+        let audioPlaybackSpeed = 1.0;
+
+        const chapterListEl = document.getElementById('chapterList');
+        const chapterTitleEl = document.getElementById('chapterTitle');
+        const chapterSubtitleEl = document.getElementById('chapterSubtitle');
+        const chapterEraEl = document.getElementById('chapterEra');
+        const chapterNumberEl = document.getElementById('chapterNumber');
+        const chapterTextEl = document.getElementById('chapterText');
+        const chapterImageEl = document.getElementById('chapterImage');
+        const imageLoaderEl = document.getElementById('imageLoader');
+        
+        const playBtn = document.getElementById('playBtn');
+        const playIcon = document.getElementById('playIcon');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const speedBtn = document.getElementById('speedBtn');
+        const generateAudioBtn = document.getElementById('generateAudioBtn');
+        const regenerateImageBtn = document.getElementById('regenerateImageBtn');
+        const audioVisualizer = document.getElementById('audioVisualizer');
+
+        const progressBar = document.getElementById('progressBar');
+        const progressBarContainer = document.getElementById('progressBarContainer');
+        const currentTimeEl = document.getElementById('currentTime');
+        const durationTimeEl = document.getElementById('durationTime');
+
+        const openGenerateModalBtn = document.getElementById('openGenerateModalBtn');
+        const closeGenerateModalBtn = document.getElementById('closeGenerateModalBtn');
+        const cancelGenerateBtn = document.getElementById('cancelGenerateBtn');
+        const generateModal = document.getElementById('generateModal');
+        const generateForm = document.getElementById('generateForm');
+
+        window.onload = function() {
+            renderChapterList();
+            loadChapter(0);
+
+            // Audio Element Events
+            audioElement.addEventListener('timeupdate', updateProgress);
+            audioElement.addEventListener('ended', onAudioEnded);
+            audioElement.addEventListener('loadedmetadata', updateDuration);
+        };
+
+        function renderChapterList() {
+            chapterListEl.innerHTML = '';
+            document.getElementById('chapterCount').textContent = `${chapters.length} глав`;
+
+            chapters.forEach((chap, idx) => {
+                const item = document.createElement('div');
+                const isActive = idx === currentChapterIndex;
+                item.className = `p-3.5 rounded-xl border transition-all duration-200 cursor-pointer flex items-center justify-between ${
+                    isActive 
+                        ? 'bg-amber-900/40 border-amber-500/60 text-white shadow-md' 
+                        : 'bg-sand-900/40 border-amber-900/20 text-sand-200/80 hover:bg-sand-900/80 hover:border-amber-800/40'
+                }`;
+                item.onclick = () => selectChapter(idx);
+
+                item.innerHTML = `
+                    <div class="flex items-center space-x-3 overflow-hidden">
+                        <div class="w-8 h-8 rounded-lg ${isActive ? 'bg-amber-500 text-sand-950 font-bold' : 'bg-sand-800 text-amber-400'} flex items-center justify-center text-xs flex-shrink-0">
+                            ${idx + 1}
+                        </div>
+                        <div class="truncate">
+                            <h4 class="font-serif text-sm font-semibold truncate ${isActive ? 'text-amber-200' : 'text-sand-100'}">${chap.title}</h4>
+                            <p class="text-[11px] text-amber-500/80 truncate">${chap.era}</p>
+                        </div>
+                    </div>
+                    ${isActive && isPlaying ? '<i class="fa-solid fa-waveform text-amber-400 text-xs ml-2 animate-pulse"></i>' : ''}
+                `;
+                chapterListEl.appendChild(item);
+            });
+        }
+
+        async function loadChapter(index) {
+            currentChapterIndex = index;
+            const chap = chapters[currentChapterIndex];
+
+            // Update UI fields
+            chapterTitleEl.textContent = chap.title;
+            chapterSubtitleEl.textContent = chap.subtitle;
+            chapterEraEl.textContent = chap.era;
+            chapterNumberEl.textContent = `Глава ${getRomanNumeral(index + 1)}`;
+            chapterTextEl.innerHTML = `<p>${chap.text}</p>`;
+
+            renderChapterList();
+
+            // Load Image
+            if (!chap.imageUrl) {
+                generateChapterImage(chap);
+            } else {
+                displayImage(chap.imageUrl);
+            }
+
+            // Load or Generate Audio
+            if (chap.audioBlobUrl) {
+                setAudioSource(chap.audioBlobUrl);
+            } else {
+                generateChapterAudio(chap);
+            }
+        }
+
+        function selectChapter(index) {
+            if (currentChapterIndex === index && isPlaying) return;
+            pauseAudio();
+            loadChapter(index);
+        }
+
+        async function generateChapterImage(chap) {
+            imageLoaderEl.classList.remove('hidden');
+            chapterImageEl.classList.add('opacity-0');
+
+            try {
+                const apiKey = ""; // Canvas handles API key runtime insertion
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-image:generateContent?key=${apiKey}`;
+
+                const payload = {
+                    contents: [{
+                        parts: [{ text: chap.imagePrompt }]
+                    }],
+                    generationConfig: {
+                        responseModalities: ['IMAGE'],
+                        imageConfig: { aspectRatio: "16:9" }
+                    }
+                };
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+                const base64Data = result?.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
+
+                if (base64Data) {
+                    const imgUrl = `data:image/png;base64,${base64Data}`;
+                    chap.imageUrl = imgUrl;
+                    displayImage(imgUrl);
+                } else {
+                    // Fallback image if needed
+                    displayImage(`https://placehold.co/800x450/261e14/f7f2e7?text=${encodeURIComponent(chap.title)}`);
+                }
+            } catch (err) {
+                console.error("Image generation failed:", err);
+                displayImage(`https://placehold.co/800x450/261e14/f7f2e7?text=${encodeURIComponent(chap.title)}`);
+            } finally {
+                imageLoaderEl.classList.add('hidden');
+            }
+        }
+
+        function displayImage(url) {
+            chapterImageEl.src = url;
+            chapterImageEl.onload = () => {
+                chapterImageEl.classList.remove('opacity-0');
+                imageLoaderEl.classList.add('hidden');
+            };
+        }
+
+        async function generateChapterAudio(chap) {
+            const voice = document.getElementById('voiceSelect').value || 'Zephyr';
+            const style = document.getElementById('styleSelect').value || 'calm';
+            
+            let promptStyle = "";
+            if (style === 'epic') promptStyle = "Say in an epic, majestic storytelling voice: ";
+            else if (style === 'mysterious') promptStyle = "Say in a mysterious, intriguing whisper-like tone: ";
+            else promptStyle = "Say in a clear, pleasant documentary narrator voice: ";
+
+            const fullPrompt = promptStyle + chap.title + ". " + chap.text;
+
+            try {
+                const apiKey = "";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`;
+
+                const payload = {
+                    contents: [{
+                        parts: [{ text: fullPrompt }]
+                    }],
+                    generationConfig: {
+                        responseModalities: ["AUDIO"],
+                        speechConfig: {
+                            voiceConfig: {
+                                prebuiltVoiceConfig: { voiceName: voice }
+                            }
+                        }
+                    },
+                    model: "gemini-2.5-flash-preview-tts"
+                };
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+                const part = result?.candidates?.[0]?.content?.parts?.[0];
+                const audioData = part?.inlineData?.data;
+                const mimeType = part?.inlineData?.mimeType;
+
+                if (audioData && mimeType && mimeType.startsWith("audio/")) {
+                    const sampleRateMatch = mimeType.match(/rate=(\d+)/);
+                    const sampleRate = sampleRateMatch ? parseInt(sampleRateMatch[1], 10) : 24000;
+                    
+                    const pcm16Data = base64ToArrayBuffer(audioData);
+                    const pcm16Array = new Int16Array(pcm16Data);
+                    const wavBlob = pcmToWav(pcm16Array, sampleRate);
+                    const audioUrl = URL.createObjectURL(wavBlob);
+
+                    chap.audioBlobUrl = audioUrl;
+                    setAudioSource(audioUrl);
+                }
+            } catch (err) {
+                console.error("Audio generation failed:", err);
+            }
+        }
+
+        function setAudioSource(url) {
+            audioElement.src = url;
+            audioElement.playbackRate = audioPlaybackSpeed;
+        }
+
+        function base64ToArrayBuffer(base64) {
+            const binaryString = window.atob(base64);
+            const len = binaryString.length;
+            const bytes = new Uint8Array(len);
+            for (let i = 0; i < len; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            return bytes.buffer;
+        }
+
+        function pcmToWav(pcm16Data, sampleRate) {
+            const numChannels = 1;
+            const bytesPerSample = 2;
+            const blockAlign = numChannels * bytesPerSample;
+            const byteRate = sampleRate * blockAlign;
+            const dataSize = pcm16Data.length * bytesPerSample;
+            const buffer = new ArrayBuffer(44 + dataSize);
+            const view = new DataView(buffer);
+
+            /* RIFF identifier */
+            writeString(view, 0, 'RIFF');
+            /* RIFF chunk length */
+            view.setUint32(4, 36 + dataSize, true);
+            /* RIFF type */
+            writeString(view, 8, 'WAVE');
+            /* format chunk identifier */
+            writeString(view, 12, 'fmt ');
+            /* format chunk length */
+            view.setUint32(16, 16, true);
+            /* sample format (raw PCM) */
+            view.setUint16(20, 1, true);
+            /* channel count */
+            view.setUint16(22, numChannels, true);
+            /* sample rate */
+            view.setUint32(24, sampleRate, true);
+            /* byte rate */
+            view.setUint32(28, byteRate, true);
+            /* block align */
+            view.setUint16(32, blockAlign, true);
+            /* bits per sample */
+            view.setUint16(34, 16, true);
+            /* data chunk identifier */
+            writeString(view, 36, 'data');
+            /* data chunk length */
+            view.setUint32(40, dataSize, true);
+
+            // Write PCM samples
+            let offset = 44;
+            for (let i = 0; i < pcm16Data.length; i++, offset += 2) {
+                view.setInt16(offset, pcm16Data[i], true);
+            }
+
+            return new Blob([buffer], { type: 'audio/wav' });
+        }
+
+        function writeString(view, offset, string) {
+            for (let i = 0; i < string.length; i++) {
+                view.setUint8(offset + i, string.charCodeAt(i));
+            }
+        }
+
+        playBtn.addEventListener('click', () => {
+            if (isPlaying) {
+                pauseAudio();
+            } else {
+                playAudio();
+            }
+        });
+
+        function playAudio() {
+            if (!audioElement.src) return;
+            audioElement.play().then(() => {
+                isPlaying = true;
+                playIcon.className = 'fa-solid fa-pause text-xl';
+                audioVisualizer.classList.remove('opacity-0');
+                renderChapterList();
+            }).catch(err => console.log('Playback error:', err));
+        }
+
+        function pauseAudio() {
+            audioElement.pause();
+            isPlaying = false;
+            playIcon.className = 'fa-solid fa-play text-xl ml-0.5';
+            audioVisualizer.classList.add('opacity-0');
+            renderChapterList();
+        }
+
+        prevBtn.addEventListener('click', () => {
+            if (currentChapterIndex > 0) {
+                selectChapter(currentChapterIndex - 1);
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            if (currentChapterIndex < chapters.length - 1) {
+                selectChapter(currentChapterIndex + 1);
+            }
+        });
+
+        speedBtn.addEventListener('click', () => {
+            if (audioPlaybackSpeed === 1.0) audioPlaybackSpeed = 1.25;
+            else if (audioPlaybackSpeed === 1.25) audioPlaybackSpeed = 1.5;
+            else if (audioPlaybackSpeed === 1.5) audioPlaybackSpeed = 0.8;
+            else audioPlaybackSpeed = 1.0;
+
+            speedBtn.textContent = `${audioPlaybackSpeed.toFixed(1)}x`;
+            audioElement.playbackRate = audioPlaybackSpeed;
+        });
+
+        generateAudioBtn.addEventListener('click', () => {
+            generateChapterAudio(chapters[currentChapterIndex]);
+        });
+
+        regenerateImageBtn.addEventListener('click', () => {
+            generateChapterImage(chapters[currentChapterIndex]);
+        });
+
+        function updateProgress() {
+            if (audioElement.duration) {
+                const percent = (audioElement.currentTime / audioElement.duration) * 100;
+                progressBar.style.width = `${percent}%`;
+                currentTimeEl.textContent = formatTime(audioElement.currentTime);
+            }
+        }
+
+        function updateDuration() {
+            durationTimeEl.textContent = formatTime(audioElement.duration);
+        }
+
+        function onAudioEnded() {
+            pauseAudio();
+            if (currentChapterIndex < chapters.length - 1) {
+                selectChapter(currentChapterIndex + 1);
+            }
+        }
+
+        progressBarContainer.addEventListener('click', (e) => {
+            const rect = progressBarContainer.getBoundingClientRect();
+            const pos = (e.clientX - rect.left) / rect.width;
+            if (audioElement.duration) {
+                audioElement.currentTime = pos * audioElement.duration;
+            }
+        });
+
+        openGenerateModalBtn.onclick = () => generateModal.classList.remove('hidden');
+        closeGenerateModalBtn.onclick = () => generateModal.classList.add('hidden');
+        cancelGenerateBtn.onclick = () => generateModal.classList.add('hidden');
+
+        generateForm.onsubmit = async (e) => {
+            e.preventDefault();
+            const topic = document.getElementById('customTopicInput').value;
+            const focus = document.getElementById('customFocusSelect').value;
+            
+            const submitBtn = document.getElementById('submitGenerateBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin mr-2"></i> Создание...`;
+
+            try {
+                const apiKey = "";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+                const systemPrompt = "Вы опытный историк и рассказчик аудиокниг. Создайте увлекательный рассказ про древнюю цивилизацию на русском языке.";
+                const userQuery = `Создай новую главу для аудиокниги про цивилизацию: "${topic}". Фокус: ${focus}. Верни JSON структуру в формате JSON со свойствами: title, subtitle, era, text, imagePrompt (подробный промпт для генератора картинок на английском языке).`;
+
+                const payload = {
+                    contents: [{ parts: [{ text: userQuery }] }],
+                    systemInstruction: { parts: [{ text: systemPrompt }] },
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: {
+                            type: "OBJECT",
+                            properties: {
+                                "title": { "type": "STRING" },
+                                "subtitle": { "type": "STRING" },
+                                "era": { "type": "STRING" },
+                                "text": { "type": "STRING" },
+                                "imagePrompt": { "type": "STRING" }
+                            },
+                            "propertyOrdering": ["title", "subtitle", "era", "text", "imagePrompt"]
+                        }
+                    }
+                };
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+                const jsonText = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                if (jsonText) {
+                    const data = JSON.parse(jsonText);
+                    const newChapter = {
+                        id: 'custom_' + Date.now(),
+                        title: data.title,
+                        subtitle: data.subtitle,
+                        era: data.era,
+                        text: data.text,
+                        imagePrompt: data.imagePrompt,
+                        imageUrl: null,
+                        audioBlobUrl: null
+                    };
+
+                    chapters.push(newChapter);
+                    generateModal.classList.add('hidden');
+                    generateForm.reset();
+                    selectChapter(chapters.length - 1);
+                }
+            } catch (err) {
+                console.error("Story generation failed:", err);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = `<i class="fa-solid fa-sparkles mr-1.5"></i> Создать главу`;
+            }
+        };
+
+        document.getElementById('ttsReadCurrentTextBtn').addEventListener('click', () => {
+            const selectedText = window.getSelection().toString();
+            if (selectedText.trim().length > 0) {
+                const tempChap = {
+                    title: "Выделенный фрагмент",
+                    text: selectedText
+                };
+                generateChapterAudio(tempChap);
+            } else {
+                alert("Пожалуйста, выделите мышкой фрагмент текста на странице, чтобы диктор прочитал его.");
+            }
+        });
+
+        /* Utility Helpers */
+        function formatTime(seconds) {
+            if (isNaN(seconds)) return "00:00";
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function getRomanNumeral(num) {
+            const lookup = {M:1000,CM:900,D:500,CD:400,C:100,XC:90,L:50,XL:40,X:10,IX:9,V:5,IV:4,I:1};
+            let roman = '';
+            for (let i in lookup) {
+                while (num >= lookup[i]) {
+                    roman += i;
+                    num -= lookup[i];
+                }
+            }
+            return roman;
+        }
+    </script>
+</body>
+</html>
